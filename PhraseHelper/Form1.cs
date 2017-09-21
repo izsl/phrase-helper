@@ -13,19 +13,28 @@ namespace PhraseHelper
     public partial class Form1 : Form
     {
         private const int ActionHotkeyId = 1;
+        private const int ActionHotKeyEscId = 2;
         public Form1()
         {
             InitializeComponent();
 
             RegisterHotKey(Handle, ActionHotkeyId, 1, (int)Keys.Oem3);
+            RegisterHotKey(Handle, ActionHotKeyEscId, 0, (int) Keys.Escape);
         }
 
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == 0x0312 && m.WParam.ToInt32() == ActionHotkeyId)
+            if (m.Msg == 0x0312)
             {
-                TopMost = true;
-                MessageBox.Show("Key down.");
+                if (m.WParam.ToInt32() == ActionHotkeyId)
+                {
+                    TopMost = true;
+                    MessageBox.Show("Key down.");
+                }
+                else if (m.WParam.ToInt32() == ActionHotKeyEscId)
+                {
+                    TopMost = false;
+                }
             }
             base.WndProc(ref m);
         }
