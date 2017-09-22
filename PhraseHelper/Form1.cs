@@ -18,6 +18,10 @@ namespace PhraseHelper
         {
             InitializeComponent();
 
+            TopMost = true;
+
+            Icon = Properties.Resources.Icon;
+            notifyIcon.Icon = Properties.Resources.Icon;
             RegisterHotKey(Handle, ActionHotkeyId, 1, (int)Keys.Oem3);
             RegisterHotKey(Handle, ActionHotKeyEscId, 0, (int) Keys.Escape);
         }
@@ -28,12 +32,11 @@ namespace PhraseHelper
             {
                 if (m.WParam.ToInt32() == ActionHotkeyId)
                 {
-                    TopMost = true;
-                    MessageBox.Show("Key down.");
+                    Show();
                 }
                 else if (m.WParam.ToInt32() == ActionHotKeyEscId)
                 {
-                    TopMost = false;
+                    Hide();
                 }
             }
             base.WndProc(ref m);
