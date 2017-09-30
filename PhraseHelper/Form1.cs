@@ -31,7 +31,10 @@ namespace PhraseHelper
 
             var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=phrase_db.db");
             var context = new DataContext(conn);
-            listBox1.DataSource = context.GetTable<Phrase>().Select(p => p.Text);
+            var phrases = context.GetTable<Phrase>();
+            //phrases.InsertOnSubmit(new Phrase{ LastTime = DateTime.Now, Text = "zsl"});
+            //context.SubmitChanges();
+            listBox1.DataSource = phrases.Select(p => p.Text);
         }
 
         protected override void WndProc(ref Message m)
@@ -61,12 +64,14 @@ namespace PhraseHelper
         }
     }
 
-    [Table(Name = "phrase")]
+    [Table(Name = "phrase_tb")]
     public class Phrase
     {
-        [Column(Name = "code")]
+        [Column(Name = "code", IsPrimaryKey = true)]
         public int Code { get; set; }
         [Column(Name = "text")]
         public string Text { get; set; }
+        [Column(Name = "last_time")]
+        public DateTime LastTime { get; set; }
     }
 }
