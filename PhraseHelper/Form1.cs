@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.Linq;
 using System.Data.SQLite;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Data.Linq.Mapping;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace PhraseHelper
@@ -18,6 +20,8 @@ namespace PhraseHelper
     {
         private const int ActionHotkeyId = 1;
         private const int ActionHotKeyEscId = 2;
+        private static readonly string SQLiteFileLocation = ConfigurationManager.AppSettings["SQLiteFileLocation"]
+            ?? "phrase.db";
         public Form1()
         {
             InitializeComponent();
@@ -29,12 +33,17 @@ namespace PhraseHelper
             RegisterHotKey(Handle, ActionHotkeyId, 1, (int)Keys.Oem3);
             RegisterHotKey(Handle, ActionHotKeyEscId, 0, (int)Keys.Escape);
 
-            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=phrase_db.db");
+            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
             var context = new DataContext(conn);
             var phrases = context.GetTable<Phrase>();
-            //phrases.InsertOnSubmit(new Phrase{ LastTime = DateTime.Now, Text = "zsl"});
-            //context.SubmitChanges();
             listBox1.DataSource = phrases.Select(p => p.Text);
+            textBox1.TextChanged += (sender, args) =>
+            {
+                listBox1.DataSource = null;
+                var textBox = (TextBox)sender;
+                listBox1.DataSource = phrases.ToList()
+                .Where(p => p.Text.IndexOf(textBox.Text) >= 0).Select(p => p.Text).ToList();
+            };
         }
 
         protected override void WndProc(ref Message m)
@@ -61,6 +70,15 @@ namespace PhraseHelper
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void AddPhrase(string phrase)
+        {
+            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
+            var context = new DataContext(conn);
+            var phrases = context.GetTable<Phrase>();
+            phrases.InsertOnSubmit(new Phrase { Text = phrase });
+            context.SubmitChanges();
         }
     }
 
