@@ -47,6 +47,8 @@ namespace PhraseHelper
             var text = listBox1.SelectedItem as string;
             Debug.Assert(text != null, nameof(text) + " != null");
             Clipboard.SetDataObject(text);
+            Hide();
+            SendKeys.Send("^v");
         }
 
         protected override void WndProc(ref Message m)
