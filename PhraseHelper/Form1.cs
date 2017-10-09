@@ -46,6 +46,13 @@ namespace PhraseHelper
                 }
             };
             textBox1.KeyUp += TextBox1_KeyUp;
+
+            notifyIcon.ShowBalloonTip(1600, "Phrase Helper", "Application is running in the background.", ToolTipIcon.Info);
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            Hide();
         }
 
         private void TextBox1_KeyUp(object sender, KeyEventArgs e)
