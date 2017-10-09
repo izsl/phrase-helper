@@ -38,11 +38,44 @@ namespace PhraseHelper
                 listBox1.DataSource = null;
                 var textBox = (TextBox)sender;
                 listBox1.DataSource = phrases.ToList()
-                .Where(p => p.Text.IndexOf(textBox.Text) >= 0).Select(p => p.Text).ToList();
+                    .Where(p => p.Text.IndexOf(textBox.Text) >= 0).Select(p => p.Text).ToList();
+
+                if (listBox1.Items.Count > 0)
+                {
+                    listBox1.SelectedIndex = 0;
+                }
             };
+            textBox1.KeyUp += TextBox1_KeyUp;
+        }
+
+        private void TextBox1_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Down:
+                    if (listBox1.SelectedIndex < listBox1.Items.Count - 1)
+                    {
+                        listBox1.SelectedIndex++;
+                    }
+                    break;
+                case Keys.Up:
+                    if (listBox1.SelectedIndex > 0)
+                    {
+                        listBox1.SelectedIndex--;
+                    }
+                    break;
+                case Keys.Enter:
+                    HideThenPaste();
+                    break;
+            }
         }
 
         private void ListBox1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+           HideThenPaste();
+        }
+
+        private void HideThenPaste()
         {
             var text = listBox1.SelectedItem as string;
             Debug.Assert(text != null, nameof(text) + " != null");
