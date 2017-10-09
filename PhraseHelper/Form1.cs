@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
-using System.Data;
 using System.Data.Linq;
+using System.Data.Linq.Mapping;
 using System.Data.SQLite;
-using System.Data.SQLite.Linq;
-using System.Drawing;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Data.Linq.Mapping;
-using System.Globalization;
 using System.Windows.Forms;
+using PhraseHelper.Properties;
 
 namespace PhraseHelper
 {
@@ -28,14 +23,15 @@ namespace PhraseHelper
 
             TopMost = true;
 
-            Icon = Properties.Resources.Icon;
-            notifyIcon.Icon = Properties.Resources.Icon;
+            Icon = Resources.Icon;
+            notifyIcon.Icon = Resources.Icon;
             RegisterHotKey(Handle, ActionHotkeyId, 1, (int)Keys.Oem3);
             RegisterHotKey(Handle, ActionHotKeyEscId, 0, (int)Keys.Escape);
 
             var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
             var context = new DataContext(conn);
             var phrases = context.GetTable<Phrase>();
+            listBox1.MouseDoubleClick += ListBox1_MouseDoubleClick;
             listBox1.DataSource = phrases.Select(p => p.Text);
             textBox1.TextChanged += (sender, args) =>
             {
@@ -44,6 +40,13 @@ namespace PhraseHelper
                 listBox1.DataSource = phrases.ToList()
                 .Where(p => p.Text.IndexOf(textBox.Text) >= 0).Select(p => p.Text).ToList();
             };
+        }
+
+        private void ListBox1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            var text = listBox1.SelectedItem as string;
+            Debug.Assert(text != null, nameof(text) + " != null");
+            Clipboard.SetDataObject(text);
         }
 
         protected override void WndProc(ref Message m)
