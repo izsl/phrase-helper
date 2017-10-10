@@ -11,13 +11,13 @@ using PhraseHelper.Properties;
 
 namespace PhraseHelper
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private const int ActionHotkeyId = 1;
         private const int ActionHotKeyEscId = 2;
         private static readonly string SQLiteFileLocation = ConfigurationManager.AppSettings["SQLiteFileLocation"]
             ?? "phrase.db";
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
