@@ -95,13 +95,15 @@ namespace PhraseHelper
         {
             if (m.Msg == 0x0312)
             {
-                if (m.WParam.ToInt32() == ActionHotkeyId)
+                switch (m.WParam.ToInt32())
                 {
-                    Show();
-                }
-                else if (m.WParam.ToInt32() == ActionHotKeyEscId)
-                {
-                    Hide();
+                    case ActionHotkeyId:
+                        Location = MousePosition;
+                        Show();
+                        break;
+                    case ActionHotKeyEscId:
+                        Hide();
+                        break;
                 }
             }
             base.WndProc(ref m);
