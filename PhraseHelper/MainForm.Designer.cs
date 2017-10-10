@@ -29,28 +29,27 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.textBox = new System.Windows.Forms.TextBox();
+            this.listBox = new System.Windows.Forms.ListBox();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 12);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(176, 21);
-            this.textBox1.TabIndex = 0;
+            this.textBox.Location = new System.Drawing.Point(12, 12);
+            this.textBox.Name = "textBox";
+            this.textBox.Size = new System.Drawing.Size(176, 21);
+            this.textBox.TabIndex = 0;
             // 
-            // listBox1
+            // listBox
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 12;
-            this.listBox1.Location = new System.Drawing.Point(12, 39);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(176, 184);
-            this.listBox1.TabIndex = 1;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            this.listBox.FormattingEnabled = true;
+            this.listBox.ItemHeight = 12;
+            this.listBox.Location = new System.Drawing.Point(12, 39);
+            this.listBox.Name = "listBox";
+            this.listBox.Size = new System.Drawing.Size(176, 184);
+            this.listBox.TabIndex = 1;
             // 
             // notifyIcon
             // 
@@ -63,8 +62,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.WindowText;
             this.ClientSize = new System.Drawing.Size(200, 236);
-            this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.listBox);
+            this.Controls.Add(this.textBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "MainForm";
             this.Text = "MainForm";
@@ -75,8 +74,8 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.TextBox textBox;
+        private System.Windows.Forms.ListBox listBox;
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.ToolTip toolTip;
     }
