@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Configuration;
-using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Dapper;
+using Dapper.Contrib.Extensions;
 using PhraseHelper.Properties;
 
 namespace PhraseHelper
@@ -33,6 +34,16 @@ namespace PhraseHelper
             {
                 HideThenPasteSelectedItem();
             };
+
+            Dapper.SqlMapper.SetTypeMap(
+                typeof(Phrase),
+                new CustomPropertyTypeMap(
+                    typeof(Phrase),
+                    (type, columnName) =>
+                        type.GetProperties().FirstOrDefault(prop =>
+                            prop.GetCustomAttributes(false)
+                                .OfType<ColumnAttribute>()
+                                .Any(attr => attr.Name == columnName))));
             RefreshDataSource(string.Empty);
             textBox.TextChanged += (sender, args) =>
             {
@@ -89,6 +100,8 @@ namespace PhraseHelper
             Clipboard.SetDataObject(phrase.Text);
             Hide();
             SendKeys.Send("^v");
+            phrase.Timestamp = (long?)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            UpdatePhrase(phrase);
         }
 
         protected override void WndProc(ref Message m)
@@ -115,11 +128,9 @@ namespace PhraseHelper
         private void RefreshDataSource(string filterKey)
         {
             var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
-            var context = new DataContext(conn);
-            var phrases = context.GetTable<Phrase>();
+            var phrases = conn.Query<Phrase>("select * from phrase_tb where text like '%" + filterKey + "%' order by timestamp desc");
             listBox.DataSource = null;
-            listBox.DataSource = phrases.ToList()
-                .Where(p => p.Text.IndexOf(filterKey) >= 0).OrderByDescending(p => p.LastTime).ToList();
+            listBox.DataSource = phrases;
             listBox.DisplayMember = "Text";
             if (listBox.Items.Count > 0)
             {
@@ -135,24 +146,25 @@ namespace PhraseHelper
         private void AddPhrase(string phrase)
         {
             var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
-            var context = new DataContext(conn);
-            var phrases = context.GetTable<Phrase>();
-            if (phrases.All(p => p.Text != phrase))
-            {
-                phrases.InsertOnSubmit(new Phrase { Text = phrase });
-                context.SubmitChanges();
-            }
+            conn.Insert(new Phrase { Text = phrase });
+        }
+
+        private void UpdatePhrase(Phrase phrase)
+        {
+            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
+            conn.Update<Phrase>(phrase);
         }
     }
 
-    [Table(Name = "phrase_tb")]
+    [Dapper.Contrib.Extensions.Table("phrase_tb")]
     public class Phrase
     {
+        [Key]
         [Column(Name = "code", IsPrimaryKey = true)]
         public int? Code { get; set; }
         [Column(Name = "text")]
         public string Text { get; set; }
-        [Column(Name = "last_time")]
-        public DateTime? LastTime { get; set; }
+        [Column(Name = "timestamp")]
+        public long? Timestamp { get; set; }
     }
 }
