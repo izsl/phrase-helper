@@ -1,2 +1,2 @@
 # phrase-helper
-- [ ] Change EF6 to Dapper
+- [x] Change EF6 to Dapper
