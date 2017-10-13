@@ -125,6 +125,13 @@ namespace PhraseHelper
             conn.Insert(new Phrase { Text = phrase });
         }
         
+
+        private void UpdatePhrase(Phrase phrase)
+        {
+            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
+            conn.Update<Phrase>(phrase);
+        }
+        
         protected override void OnShown(EventArgs e)
         {
             Hide();
@@ -149,12 +156,6 @@ namespace PhraseHelper
                 }
             }
             base.WndProc(ref m);
-        }
-
-        private void UpdatePhrase(Phrase phrase)
-        {
-            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
-            conn.Update<Phrase>(phrase);
         }
         
         [DllImport("user32.dll")]
