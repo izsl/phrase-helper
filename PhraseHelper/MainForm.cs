@@ -14,8 +14,11 @@ namespace PhraseHelper
 {
     public partial class MainForm : Form
     {
+        // Bring form to front
         private const int ActionHotkeyId = 1;
+        // Hide form
         private const int ActionHotKeyEscId = 2;
+        // Add textbox text to listbox
         private const int ActionHotKeyAltEnter = 3;
         private static readonly string SQLiteFileLocation = ConfigurationManager.AppSettings["SQLiteFileLocation"]
             ?? "phrase.db";
@@ -27,9 +30,12 @@ namespace PhraseHelper
 
             Icon = Resources.Icon;
             notifyIcon.Icon = Resources.Icon;
+            
+            // Register HotKey
             RegisterHotKey(Handle, ActionHotkeyId, 1, (int)Keys.Oem3);
             RegisterHotKey(Handle, ActionHotKeyEscId, 0, (int)Keys.Escape);
             RegisterHotKey(Handle, ActionHotKeyAltEnter, 1, (int)Keys.Enter);
+            
             listBox.MouseDoubleClick += (sender, args) =>
             {
                 HideThenPasteSelectedItem();
@@ -85,11 +91,6 @@ namespace PhraseHelper
             notifyIcon.ShowBalloonTip(1600, "Phrase Helper", "Application is running in the background.", ToolTipIcon.Info);
         }
 
-        protected override void OnShown(EventArgs e)
-        {
-            Hide();
-        }
-
         private void HideThenPasteSelectedItem()
         {
             if (!(listBox.SelectedItem is Phrase phrase))
@@ -102,6 +103,31 @@ namespace PhraseHelper
             SendKeys.Send("^v");
             phrase.Timestamp = (long?)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
             UpdatePhrase(phrase);
+        }
+
+
+        private void RefreshDataSource(string filterKey)
+        {
+            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
+            var phrases = conn.Query<Phrase>("select * from phrase_tb where text like '%" + filterKey + "%' order by timestamp desc");
+            listBox.DataSource = null;
+            listBox.DataSource = phrases;
+            listBox.DisplayMember = "Text";
+            if (listBox.Items.Count > 0)
+            {
+                listBox.SelectedIndex = 0;
+            }
+        }
+
+        private void AddPhrase(string phrase)
+        {
+            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
+            conn.Insert(new Phrase { Text = phrase });
+        }
+        
+        protected override void OnShown(EventArgs e)
+        {
+            Hide();
         }
 
         protected override void WndProc(ref Message m)
@@ -125,35 +151,16 @@ namespace PhraseHelper
             base.WndProc(ref m);
         }
 
-        private void RefreshDataSource(string filterKey)
-        {
-            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
-            var phrases = conn.Query<Phrase>("select * from phrase_tb where text like '%" + filterKey + "%' order by timestamp desc");
-            listBox.DataSource = null;
-            listBox.DataSource = phrases;
-            listBox.DisplayMember = "Text";
-            if (listBox.Items.Count > 0)
-            {
-                listBox.SelectedIndex = 0;
-            }
-        }
-
-        [DllImport("user32.dll")]
-        public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
-        [DllImport("user32.dll")]
-        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-        private void AddPhrase(string phrase)
-        {
-            var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
-            conn.Insert(new Phrase { Text = phrase });
-        }
-
         private void UpdatePhrase(Phrase phrase)
         {
             var conn = new SQLiteConnection("DbLinqProvider=Sqlite;Data Source=" + SQLiteFileLocation);
             conn.Update<Phrase>(phrase);
         }
+        
+        [DllImport("user32.dll")]
+        public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
+        [DllImport("user32.dll")]
+        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     }
 
     [Dapper.Contrib.Extensions.Table("phrase_tb")]
